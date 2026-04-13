@@ -16,41 +16,50 @@
     <ul id="messages"></ul>
 
     <script>
-      const socket = new WebSocket('ws://localhost:3000');
       const from = document.querySelector('form');
       const input = document.querySelector('input');
       const messagesElem = document.querySelector('#messages');
 
-      function sendMessage(message) {
-        socket.send(message);
+      function connectToServer() {
+        const socket = new WebSocket('ws://localhost:3000');
+
+        function renderMessage(message) {
+          const li = document.createElement('li');
+
+          li.innerHTML = message;
+          messagesElem.prepend(li);
+        }
+
+        from.addEventListener('submit', () => {
+          event.preventDefault();
+          const message = input.value;
+
+          sendMessage(message);
+        });
+
+        function sendMessage(message) {
+          socket.send(message);
+        }
+
+        socket.onopen = event => {
+          console.log('Connected');
+        };
+
+        socket.onclose = event => {
+          console.log('Disconnected');
+
+          setTimeout(() => {
+            connectToServer();
+          }, 1500);
+        };
+
+        socket.onmessage = event => {
+          const { payload } = JSON.parse(event.data);
+          renderMessage(payload);
+        };
       }
 
-      function renderMessage(message) {
-        const li = document.createElement('li');
-
-        li.innerHTML = message;
-        messagesElem.prepend(li);
-      }
-
-      from.addEventListener('submit', () => {
-        event.preventDefault();
-        const message = input.value;
-
-        sendMessage(message);
-      });
-
-      socket.onopen = event => {
-        console.log('Connected');
-      };
-
-      socket.onclose = event => {
-        console.log('Disconnected');
-      };
-
-      socket.onmessage = event => {
-        const { payload } = JSON.parse(event.data);
-        renderMessage(payload);
-      };
+      connectToServer();
     </script>
   </body>
 </html>
