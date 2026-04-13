@@ -6,7 +6,7 @@
     <title>Document</title>
   </head>
   <body>
-    <h1>Websocket Status</h1>
+    <h1>Websocket Status: <small></small></h1>
 
     <form>
       <input type="text" placeholder="Send message" />
@@ -19,6 +19,7 @@
       const from = document.querySelector('form');
       const input = document.querySelector('input');
       const messagesElem = document.querySelector('#messages');
+      const statusElement = document.querySelector('small');
 
       function connectToServer() {
         const socket = new WebSocket('ws://localhost:3000');
@@ -43,10 +44,12 @@
 
         socket.onopen = event => {
           console.log('Connected');
+          statusElement.innerText = 'Connected';
         };
 
         socket.onclose = event => {
           console.log('Disconnected');
+          statusElement.innerText = 'Disonnected';
 
           setTimeout(() => {
             connectToServer();
